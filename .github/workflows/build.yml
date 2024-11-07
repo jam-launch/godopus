@@ -55,34 +55,28 @@ jobs:
           key: ${{ matrix.config.os }}-${{ matrix.build_type }}
 
       - name: Configure
-        run: >
+        run: |
           mkdir GDExtension-build
-
-          cmake
-          -B GDExtension-build
-          -G "Ninja"
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-          --install-prefix ${{ github.workspace }}/install-${{ matrix.build_type }}
-          .
+          cmake -B GDExtension-build -G "Ninja" -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} .
 
       - name: Build
+        if: matrix.config.os == 'windows-latest'
+        run: cmake --build GDExtension-build --config ${{ matrix.build_type }}
+      
+      - name: Build
+        if: matrix.config.os != 'windows-latest'
         run: cmake --build GDExtension-build
 
       - name: Install
+        if: matrix.config.os == 'windows-latest'
+        run: cmake --install GDExtension-build --config ${{ matrix.build_type }}
+
+      - name: Install
+        if: matrix.config.os != 'windows-latest'
         run: cmake --install GDExtension-build
 
-      - name: Upload artifact (Debug)
-        if: matrix.build_type == 'Debug'
+      - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ github.event.repository.name }}-Debug
-          path: |
-            ${{ github.workspace }}/install-${{ matrix.build_type }}/*
-
-      - name: Upload artifact (Release)
-        if: matrix.build_type == 'Release'
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ github.event.repository.name }}-Release
-          path: |
-            ${{ github.workspace }}/install-${{ matrix.build_type }}/*
+          name: godopus-gdx-${{ matrix.build_type }}
+          path: ${{ github.workspace }}/dist
