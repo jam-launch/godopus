@@ -16,7 +16,7 @@ jobs:
           #- 'Debug'
           - 'Release'
         config:
-          # - { name: '🍏 macOS Clang', os: macos-latest }
+          - { name: 'macOS Clang', os: macos-latest }
           - { name: 'Linux GCC', os: ubuntu-latest }
           - { name: 'Windows MSVC', os: windows-latest }
 
@@ -59,7 +59,7 @@ jobs:
           mkdir GDExtension-build
           cmake -B GDExtension-build -G "Ninja" -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} .
 
-      - name: Build
+      - name: Build (Windows)
         if: matrix.config.os == 'windows-latest'
         run: cmake --build GDExtension-build --config ${{ matrix.build_type }}
       
@@ -67,7 +67,7 @@ jobs:
         if: matrix.config.os != 'windows-latest'
         run: cmake --build GDExtension-build
 
-      - name: Install
+      - name: Install (Windows)
         if: matrix.config.os == 'windows-latest'
         run: cmake --install GDExtension-build --config ${{ matrix.build_type }}
 
